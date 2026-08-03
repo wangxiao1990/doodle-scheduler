@@ -18,8 +18,6 @@ public class Slot {
     private String userId;
     private LocalDateTime startTime;
     private LocalDateTime endTime;
-    private String title;
-    private String description;
 
     @Enumerated(EnumType.STRING)
     private SlotStatus status = SlotStatus.AVAILABLE;
@@ -33,6 +31,13 @@ public class Slot {
 
     public boolean isAvailable() {
         return status == SlotStatus.AVAILABLE;
+    }
+
+    public void book() {
+        if (!isAvailable()) {
+            throw new IllegalStateException("Slot not available");
+        }
+        this.status = SlotStatus.BOOKED;
     }
 }
 
