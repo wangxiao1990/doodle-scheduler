@@ -29,6 +29,10 @@ dependencies {
 	implementation 'org.springframework.boot:spring-boot-h2console'
 	implementation 'org.springframework.boot:spring-boot-starter-actuator'
 
+	// Utilities
+	compileOnly 'org.projectlombok:lombok'
+	annotationProcessor 'org.projectlombok:lombok'
+
 	// Database
 	runtimeOnly 'com.h2database:h2'
 
