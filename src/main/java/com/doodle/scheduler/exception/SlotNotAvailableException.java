@@ -10,7 +10,7 @@ public class SlotNotAvailableException extends RuntimeException {
     public SlotNotAvailableException(String slotId) {
         super("Slot is not available: " + slotId);
         this.slotId = slotId;
-        this.reason = "Slot is either booked or cancelled";
+        this.reason = "Slot is booked";
     }
 
     public SlotNotAvailableException(String slotId, String reason) {

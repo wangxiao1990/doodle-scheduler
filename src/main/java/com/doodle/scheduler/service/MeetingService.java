@@ -26,7 +26,7 @@ public class MeetingService {
     public Meeting bookMeeting(String slotId, String title, String description, Set<String> participants) {
         validateTitle(title);
 
-        Slot slot = slotRepository.findById(slotId)
+        Slot slot = slotRepository.findAvailableSlotForUpdate(slotId)
                 .orElseThrow(() -> {
                     log.warn("Slot not available for booking: {}", slotId);
                     return new SlotNotAvailableException(slotId);
@@ -37,7 +37,7 @@ public class MeetingService {
             slotRepository.save(slot);
         } catch (IllegalStateException e) {
             log.error("Failed to book slot {}: {}", slotId, e.getMessage());
-            throw new SlotNotAvailableException(slotId, e.getMessage());
+            throw new SlotNotAvailableException(slotId);
         }
 
         Meeting meeting = new Meeting(

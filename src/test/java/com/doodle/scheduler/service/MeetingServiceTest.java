@@ -56,7 +56,7 @@ class MeetingServiceTest {
         String title = "Team Sync";
         String description = "Weekly team meeting";
 
-        when(slotRepository.findById(slotId))
+        when(slotRepository.findAvailableSlotForUpdate(slotId))
                 .thenReturn(Optional.of(availableSlot));
         when(meetingRepository.save(any(Meeting.class)))
                 .thenAnswer(i -> i.getArgument(0));
@@ -75,7 +75,7 @@ class MeetingServiceTest {
 
         // Verify slot was booked
         assertThat(availableSlot.isAvailable()).isFalse();
-        verify(slotRepository).findById(slotId);
+        verify(slotRepository).findAvailableSlotForUpdate(slotId);
         verify(slotRepository).save(availableSlot);
         verify(meetingRepository).save(any(Meeting.class));
     }
@@ -85,7 +85,7 @@ class MeetingServiceTest {
         // Given
         String title = "Quick Sync";
 
-        when(slotRepository.findById(slotId))
+        when(slotRepository.findAvailableSlotForUpdate(slotId))
                 .thenReturn(Optional.of(availableSlot));
         when(meetingRepository.save(any(Meeting.class)))
                 .thenAnswer(i -> i.getArgument(0));
@@ -104,14 +104,14 @@ class MeetingServiceTest {
     void shouldThrowWhenSlotAlreadyBooked() {
         // Given
         availableSlot.book();
-        when(slotRepository.findById(slotId))
+        when(slotRepository.findAvailableSlotForUpdate(slotId))
                 .thenReturn(Optional.empty()); // Not found because status != AVAILABLE
 
         // When & Then
         assertThatThrownBy(() -> meetingService.bookMeeting(slotId, "Test", null, anySet()))
                 .isInstanceOf(SlotNotAvailableException.class);
 
-        verify(slotRepository).findById(slotId);
+        verify(slotRepository).findAvailableSlotForUpdate(slotId);
         verify(slotRepository, never()).save(any(Slot.class));
         verify(meetingRepository, never()).save(any(Meeting.class));
     }
@@ -120,14 +120,14 @@ class MeetingServiceTest {
     void shouldThrowWhenSlotDoesNotExist() {
         // Given
         String nonExistentSlotId = UUID.randomUUID().toString();
-        when(slotRepository.findById(nonExistentSlotId))
+        when(slotRepository.findAvailableSlotForUpdate(nonExistentSlotId))
                 .thenReturn(Optional.empty());
 
         // When & Then
         assertThatThrownBy(() -> meetingService.bookMeeting(nonExistentSlotId, "Test", null, anySet()))
                 .isInstanceOf(SlotNotAvailableException.class);
 
-        verify(slotRepository).findById(nonExistentSlotId);
+        verify(slotRepository).findAvailableSlotForUpdate(nonExistentSlotId);
         verify(slotRepository, never()).save(any(Slot.class));
         verify(meetingRepository, never()).save(any(Meeting.class));
     }

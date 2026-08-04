@@ -3,15 +3,19 @@ spring:
     name: doodle-scheduler
 
   datasource:
-    url: jdbc:h2:mem:doodle
+    url: jdbc:h2:mem:doodle;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE
     driverClassName: org.h2.Driver
     username: sa
     password:
 
   jpa:
     hibernate:
-      ddl-auto: update
+      ddl-auto: create-drop
     show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+    defer-datasource-initialization: true
 
   h2:
     console:
