@@ -20,6 +20,8 @@ public class MeetingService {
 
     @Transactional
     public Meeting bookMeeting(String slotId, String title, String description, Set<String> participants) {
+        validateTitle(title);
+
         Slot slot = slotRepository.findById(slotId)
                 .orElseThrow(() -> new RuntimeException("Slot not available"));
 
@@ -35,10 +37,28 @@ public class MeetingService {
                 slot.getEndTime()
         );
         meeting.setDescription(description);
+        meeting.setParticipants(participants);
         return meetingRepository.save(meeting);
     }
 
     public List<Meeting> getUserMeetings(String userId, LocalDateTime start, LocalDateTime end) {
+        validateTimeRange(start, end);
+
         return meetingRepository.findByOrganizerIdAndStartTimeBetween(userId, start, end);
+    }
+
+    private void validateTitle(String title) {
+        if (title == null || title.trim().isEmpty()) {
+            throw new IllegalArgumentException("Title cannot be empty");
+        }
+    }
+
+    private void validateTimeRange(LocalDateTime start, LocalDateTime end) {
+        if (start == null || end == null) {
+            throw new IllegalArgumentException("Start and end times cannot be null");
+        }
+        if (start.isAfter(end) || start.equals(end)) {
+            throw new IllegalArgumentException("Start time must be before end time");
+        }
     }
 }
