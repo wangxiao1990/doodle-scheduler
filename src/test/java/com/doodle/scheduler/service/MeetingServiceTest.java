@@ -2,6 +2,8 @@ package com.doodle.scheduler.service;
 
 import com.doodle.scheduler.domain.Meeting;
 import com.doodle.scheduler.domain.Slot;
+import com.doodle.scheduler.exception.InvalidTimeRangeException;
+import com.doodle.scheduler.exception.SlotNotAvailableException;
 import com.doodle.scheduler.repository.MeetingRepository;
 import com.doodle.scheduler.repository.SlotRepository;
 import org.junit.jupiter.api.BeforeEach;
@@ -107,8 +109,7 @@ class MeetingServiceTest {
 
         // When & Then
         assertThatThrownBy(() -> meetingService.bookMeeting(slotId, "Test", null, anySet()))
-                .isInstanceOf(RuntimeException.class)
-                .hasMessageContaining("Slot not available");
+                .isInstanceOf(SlotNotAvailableException.class);
 
         verify(slotRepository).findById(slotId);
         verify(slotRepository, never()).save(any(Slot.class));
@@ -124,8 +125,7 @@ class MeetingServiceTest {
 
         // When & Then
         assertThatThrownBy(() -> meetingService.bookMeeting(nonExistentSlotId, "Test", null, anySet()))
-                .isInstanceOf(RuntimeException.class)
-                .hasMessageContaining("Slot not available");
+                .isInstanceOf(SlotNotAvailableException.class);
 
         verify(slotRepository).findById(nonExistentSlotId);
         verify(slotRepository, never()).save(any(Slot.class));
@@ -197,16 +197,11 @@ class MeetingServiceTest {
     @Test
     void shouldThrowWhenGettingMeetingsWithInvalidTimes() {
         assertThatThrownBy(() -> meetingService.getUserMeetings(userId, null, end))
-                .isInstanceOf(IllegalArgumentException.class)
-                .hasMessageContaining("cannot be null");
-
+                .isInstanceOf(InvalidTimeRangeException.class);
         assertThatThrownBy(() -> meetingService.getUserMeetings(userId, start, null))
-                .isInstanceOf(IllegalArgumentException.class)
-                .hasMessageContaining("cannot be null");
-
+                .isInstanceOf(InvalidTimeRangeException.class);
         LocalDateTime invalidEnd = start.minusHours(1);
         assertThatThrownBy(() -> meetingService.getUserMeetings(userId, start, invalidEnd))
-                .isInstanceOf(IllegalArgumentException.class)
-                .hasMessageContaining("Start time must be before end time");
+                .isInstanceOf(InvalidTimeRangeException.class);
     }
 }

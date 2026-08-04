@@ -45,5 +45,5 @@ public class SlotController {
     }
 }
 
-record CreateSlotRequest(String userId, LocalDateTime startTime, LocalDateTime endTime, String title) {}
-record UpdateSlotRequest(LocalDateTime startTime, LocalDateTime endTime, String title) {}
+record CreateSlotRequest(String userId, LocalDateTime startTime, LocalDateTime endTime) {}
+record UpdateSlotRequest(LocalDateTime startTime, LocalDateTime endTime) {}

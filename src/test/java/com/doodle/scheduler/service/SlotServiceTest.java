@@ -1,6 +1,8 @@
 package com.doodle.scheduler.service;
 
 import com.doodle.scheduler.domain.Slot;
+import com.doodle.scheduler.exception.InvalidTimeRangeException;
+import com.doodle.scheduler.exception.SlotNotAvailableException;
 import com.doodle.scheduler.repository.SlotRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -64,22 +66,18 @@ class SlotServiceTest {
     @Test
     void shouldThrowWhenCreatingSlotWithInvalidTimes() {
         assertThatThrownBy(() -> slotService.createSlot(userId, null, end))
-                .isInstanceOf(IllegalArgumentException.class)
-                .hasMessageContaining("cannot be null");
+                .isInstanceOf(InvalidTimeRangeException.class);
 
         assertThatThrownBy(() -> slotService.createSlot(userId, start, null))
-                .isInstanceOf(IllegalArgumentException.class)
-                .hasMessageContaining("cannot be null");
+                .isInstanceOf(InvalidTimeRangeException.class);
 
         LocalDateTime invalidEnd = start.minusHours(1);
 
         assertThatThrownBy(() -> slotService.createSlot(userId, start, invalidEnd))
-                .isInstanceOf(IllegalArgumentException.class)
-                .hasMessageContaining("Start time must be before end time");
+                .isInstanceOf(InvalidTimeRangeException.class);
 
         assertThatThrownBy(() -> slotService.createSlot(userId, start, start))
-                .isInstanceOf(IllegalArgumentException.class)
-                .hasMessageContaining("Start time must be before end time");
+                .isInstanceOf(InvalidTimeRangeException.class);
     }
 
     @Test
@@ -144,8 +142,7 @@ class SlotServiceTest {
 
         // When & Then
         assertThatThrownBy(() -> slotService.updateSlot(slotId, start, end))
-                .isInstanceOf(RuntimeException.class)
-                .hasMessageContaining("Cannot update booked slot");
+                .isInstanceOf(SlotNotAvailableException.class);
 
         verify(slotRepository).findById(slotId);
         verify(slotRepository, never()).findOverlapping(any(), any(), any());
@@ -199,17 +196,14 @@ class SlotServiceTest {
     void shouldThrowWhenUpdatingSlotWithInvalidTimes() {
         // When & Then
         assertThatThrownBy(() -> slotService.updateSlot(slotId, null, end))
-                .isInstanceOf(IllegalArgumentException.class)
-                .hasMessageContaining("cannot be null");
+                .isInstanceOf(InvalidTimeRangeException.class);
 
         assertThatThrownBy(() -> slotService.updateSlot(slotId, start, null))
-                .isInstanceOf(IllegalArgumentException.class)
-                .hasMessageContaining("cannot be null");
+                .isInstanceOf(InvalidTimeRangeException.class);
 
         LocalDateTime invalidEnd = start.minusHours(1);
         assertThatThrownBy(() -> slotService.updateSlot(slotId, start, invalidEnd))
-                .isInstanceOf(IllegalArgumentException.class)
-                .hasMessageContaining("Start time must be before end time");
+                .isInstanceOf(InvalidTimeRangeException.class);
     }
 
     @Test
@@ -247,8 +241,7 @@ class SlotServiceTest {
 
         // When & Then
         assertThatThrownBy(() -> slotService.deleteSlot(slotId))
-                .isInstanceOf(RuntimeException.class)
-                .hasMessageContaining("Cannot delete booked slot");
+                .isInstanceOf(SlotNotAvailableException.class);
 
         verify(slotRepository).findById(slotId);
         verify(slotRepository, never()).delete(any(Slot.class));
@@ -273,16 +266,10 @@ class SlotServiceTest {
     @Test
     void shouldThrowWhenGettingSlotsWithInvalidTimes() {
         assertThatThrownBy(() -> slotService.getUserSlots(userId, null, end))
-                .isInstanceOf(IllegalArgumentException.class)
-                .hasMessageContaining("cannot be null");
-
+                .isInstanceOf(InvalidTimeRangeException.class);
         assertThatThrownBy(() -> slotService.getUserSlots(userId, start, null))
-                .isInstanceOf(IllegalArgumentException.class)
-                .hasMessageContaining("cannot be null");
-
+                .isInstanceOf(InvalidTimeRangeException.class);
         LocalDateTime invalidEnd = start.minusHours(1);
         assertThatThrownBy(() -> slotService.getUserSlots(userId, start, invalidEnd))
-                .isInstanceOf(IllegalArgumentException.class)
-                .hasMessageContaining("Start time must be before end time");
-    }
+                .isInstanceOf(InvalidTimeRangeException.class);}
 }
